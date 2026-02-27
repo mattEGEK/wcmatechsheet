@@ -39,6 +39,11 @@ if (!$email) {
     sendJsonResponse(false, 'Please enter a valid email address.');
 }
 
+// Declaration agreement required
+if (empty($post['declaration_agree']) || $post['declaration_agree'] !== '1') {
+    sendJsonResponse(false, 'You must agree to the Participants Declaration to submit.');
+}
+
 // Signatures required
 if (empty($post['sig_entrant']) || empty($post['sig_driver'])) {
     sendJsonResponse(false, 'Both Entrant and Driver signatures are required.');
@@ -221,7 +226,9 @@ try {
 
     // Footer: Declaration, Signatures, Date Submitted, Log Book
     $pdf->SetFont('helvetica', '', 7);
-    $pdf->MultiCell(0, 3.5, "Participants Declaration: I hereby stipulate that the above vehicle meets the regulations for the event.", 0, 'L');
+    $pdf->SetXY($x, $y);
+    $fullWidth = 195;
+    $pdf->MultiCell($fullWidth, 3.5, "Participants Declaration: [X] I agree – I hereby stipulate that the above vehicle meets the regulations for the event.", 0, 'L');
     $y = $pdf->GetY() + 1;
 
     $sigW = 50;

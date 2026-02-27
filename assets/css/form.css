@@ -333,6 +333,17 @@ label.full {
     margin: 1.5rem 0 1rem;
     font-size: 0.95rem;
     font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.declaration input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
 }
 
 .submit-wrap {

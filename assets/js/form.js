@@ -150,6 +150,13 @@
         errorEl.textContent = '';
 
         captureSignatures();
+        var declCheck = form.querySelector('input[name="declaration_agree"]');
+        if (!declCheck || !declCheck.checked) {
+            errorEl.textContent = 'You must agree to the Participants Declaration to submit.';
+            showStep(5);
+            declCheck && declCheck.focus();
+            return;
+        }
         var sigEntrantVal = document.getElementById('sigEntrantData').value;
         var sigDriverVal = document.getElementById('sigDriverData').value;
         if (!sigEntrantVal || sigEntrantVal.length < 50) {

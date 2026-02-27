@@ -212,7 +212,10 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                     Vehicle Log Book Turned In
                     <span><input type="radio" name="logbook" value="yes"> Yes <input type="radio" name="logbook" value="no"> No</span>
                 </label>
-                <p class="declaration">Participants Declaration: I hereby stipulate that the above vehicle meets the regulations for the event.</p>
+                <label class="declaration cb">
+                    <input type="checkbox" name="declaration_agree" value="1" required>
+                    I agree – I hereby stipulate that the above vehicle meets the regulations for the event.
+                </label>
                 <div class="step-actions">
                     <button type="button" class="btn-prev">Back</button>
                     <button type="submit" id="submitBtn">Submit Tech Sheet</button>
