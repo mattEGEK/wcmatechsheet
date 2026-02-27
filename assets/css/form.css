@@ -283,10 +283,14 @@ label.full {
     display: block;
     width: 100%;
     max-width: 300px;
-    height: auto;
+    height: 120px;
+    min-height: 120px;
     border: 1px dashed var(--border);
     border-radius: 4px;
     touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .sig-box label {

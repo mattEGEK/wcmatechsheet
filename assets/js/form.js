@@ -10,7 +10,7 @@
     const totalSteps = panels.length;
 
     let padEntrant, padDriver;
-    let resizeCanvases = function () {};
+    let signaturesInitialized = false;
 
     function showStep(step) {
         const n = parseInt(step, 10);
@@ -20,8 +20,13 @@
         progressBar.style.width = (n / totalSteps * 100) + '%';
         progressBar.setAttribute('aria-valuenow', n);
         progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
-        if (n === 4) {
-            requestAnimationFrame(function () { resizeCanvases(); });
+        if (n === 4 && !signaturesInitialized) {
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    initSignatures();
+                    signaturesInitialized = true;
+                });
+            });
         }
     }
 
@@ -60,6 +65,22 @@
         const canvasDriver = document.getElementById('sigDriver');
         if (!canvasEntrant || !canvasDriver || typeof SignaturePad === 'undefined') return;
 
+        function resizeCanvases() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            [canvasEntrant, canvasDriver].forEach(function (c) {
+                var w = c.offsetWidth || c.getBoundingClientRect().width || 300;
+                var h = c.offsetHeight || c.getBoundingClientRect().height || 120;
+                if (w < 1 || h < 1) { w = 300; h = 120; }
+                c.width = w * ratio;
+                c.height = h * ratio;
+                var ctx = c.getContext('2d');
+                ctx.scale(ratio, ratio);
+            });
+            if (padEntrant) padEntrant.clear();
+            if (padDriver) padDriver.clear();
+        }
+
+        resizeCanvases();
         padEntrant = new SignaturePad(canvasEntrant, {
             backgroundColor: 'rgb(255, 255, 255)',
             penColor: 'rgb(0, 0, 0)'
@@ -68,22 +89,8 @@
             backgroundColor: 'rgb(255, 255, 255)',
             penColor: 'rgb(0, 0, 0)'
         });
-
-        resizeCanvases = function () {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            [canvasEntrant, canvasDriver].forEach(function (c) {
-                const rect = c.getBoundingClientRect();
-                var w = rect.width || c.offsetWidth || 300;
-                var h = rect.height || c.offsetHeight || 120;
-                c.width = w * ratio;
-                c.height = h * ratio;
-                var ctx = c.getContext('2d');
-                ctx.scale(ratio, ratio);
-            });
-            if (padEntrant) padEntrant.clear();
-            if (padDriver) padDriver.clear();
-        };
-        resizeCanvases();
+        padEntrant.clear();
+        padDriver.clear();
 
         document.querySelectorAll('.clear-sig').forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -153,5 +160,4 @@
 
     initSteps();
     initCheckAll();
-    initSignatures();
 })();
