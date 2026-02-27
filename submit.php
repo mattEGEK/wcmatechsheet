@@ -28,7 +28,7 @@ if (!empty($post['website'])) {
 
 // Field name to friendly label for error messages
 $fieldLabels = [
-    'entrant' => 'Entrant', 'car_make' => 'Car Make', 'car_model' => 'Car Model', 'car_colour' => 'Car Colour',
+    'season' => 'Season', 'entrant' => 'Entrant', 'car_make' => 'Car Make', 'car_model' => 'Car Model', 'car_colour' => 'Car Colour',
     'driver_team' => 'Driver/Team Name', 'car_number' => 'Car Number', 'competitor_email' => 'Competitor Email',
     'class' => 'Class', 'engine_cc' => 'Engine (CC)', 'engine_hp' => 'Engine (HP)', 'car_weight' => 'Car Weight',
     'uv_0' => 'Steering linkage', 'uv_1' => 'Suspension & shocks', 'uv_2' => 'Wheel bearing condition',
@@ -73,8 +73,8 @@ foreach ($checkboxRequired as $field) {
     }
 }
 
-// Step 4 mandatory selects
-$selectRequired = ['helmet_rating', 'suit_rating', 'head_neck_restraint'];
+// Step 1 & 4 mandatory selects
+$selectRequired = ['season', 'helmet_rating', 'suit_rating', 'head_neck_restraint'];
 foreach ($selectRequired as $field) {
     $val = trim($post[$field] ?? '');
     if ($val === '') {
@@ -152,9 +152,15 @@ try {
     $y = $pdf->GetY() + 2;
 
     // Vehicle info - two columns per original
+    // Row 0: SEASON
     // Left: ENTRANT, CAR MAKE, CAR MODEL, CAR COLOUR
     // Right: DRIVER/TEAM NAME, CAR NUMBER, CLASS, ENGINE (CC) (HP), CAR WEIGHT
     $pdf->SetFont('helvetica', '', 7);
+    $pdf->SetXY($x, $y);
+    $pdf->Cell(22, $lh, 'SEASON:', 0, 0);
+    $pdf->Cell(45, $lh, $post['season'] ?? '', 'B', 1);
+    $y = $pdf->GetY();
+
     $pdf->SetXY($x, $y);
     $pdf->Cell(22, $lh, 'ENTRANT:', 0, 0);
     $pdf->Cell(45, $lh, $post['entrant'] ?? '', 'B', 0);

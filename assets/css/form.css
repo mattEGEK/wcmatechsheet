@@ -406,3 +406,80 @@ footer {
     font-size: 0.85rem;
     color: #666;
 }
+
+/* Load previous submission prompt */
+.load-prompt-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.load-prompt-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.load-prompt-card {
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    max-width: 360px;
+    width: 100%;
+}
+
+.load-prompt-card h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    border: none;
+    padding: 0;
+}
+
+.load-prompt-label {
+    margin: 0 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.load-prompt-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.load-prompt-actions button {
+    flex: 1;
+    min-height: var(--tap);
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.btn-load {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-load:hover {
+    background: #a00;
+}
+
+.btn-fresh {
+    background: #eee;
+    color: var(--text);
+}
+
+.btn-fresh:hover {
+    background: #ddd;
+}

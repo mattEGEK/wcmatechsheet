@@ -44,6 +44,13 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             <section class="form-section step-panel" data-step="1">
                 <h2>Vehicle Information</h2>
                 <div class="grid-2">
+                    <label class="req">Season <span class="req-asterisk">*</span>
+                        <select name="season" required>
+                            <option value="">Select…</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Winter">Winter</option>
+                        </select>
+                    </label>
                     <label class="req">Entrant <span class="req-asterisk">*</span> <input type="text" name="entrant" required></label>
                     <label class="req">Car Make <span class="req-asterisk">*</span> <input type="text" name="car_make" required></label>
                     <label class="req">Car Model <span class="req-asterisk">*</span> <input type="text" name="car_model" required></label>
@@ -226,6 +233,17 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             </div>
         </div>
     </form>
+
+    <div id="loadPromptOverlay" class="load-prompt-overlay" aria-hidden="true" role="dialog" aria-labelledby="loadPromptTitle" aria-modal="true">
+        <div class="load-prompt-card">
+            <h2 id="loadPromptTitle">Load previous submission?</h2>
+            <p id="loadPromptLabel" class="load-prompt-label"></p>
+            <div class="load-prompt-actions">
+                <button type="button" id="loadPromptLoad" class="btn-load">Load Previous</button>
+                <button type="button" id="loadPromptFresh" class="btn-fresh">Start Fresh</button>
+            </div>
+        </div>
+    </div>
 
     <footer>Revised 2026</footer>
 

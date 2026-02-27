@@ -147,8 +147,55 @@
         }
     }
 
+    function serializeForm() {
+        var data = {};
+        for (var i = 0; i < form.elements.length; i++) {
+            var el = form.elements[i];
+            if (!el.name || el.name === 'website') continue;
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                if (el.checked) data[el.name] = el.value;
+            } else {
+                data[el.name] = el.value || '';
+            }
+        }
+        var label = [data.car_number || '', data.car_make || '', data.class || ''].filter(Boolean).join(' - ') || 'Previous submission';
+        return { formData: data, label: label };
+    }
+
+    function restoreForm(data) {
+        var d = data.formData || data;
+        for (var i = 0; i < form.elements.length; i++) {
+            var el = form.elements[i];
+            if (!el.name || el.name === 'website') continue;
+            var val = d[el.name];
+            if (el.type === 'checkbox') {
+                el.checked = (val === '1' || val === el.value);
+            } else if (el.type === 'radio') {
+                el.checked = (val === el.value);
+            } else if (el.tagName === 'SELECT') {
+                el.value = val || '';
+            } else {
+                el.value = val || '';
+            }
+        }
+        var sigEntrant = d.sig_entrant;
+        var sigDriver = d.sig_driver;
+        if (sigEntrant && padEntrant && typeof padEntrant.fromDataURL === 'function') {
+            document.getElementById('sigEntrantData').value = sigEntrant;
+            padEntrant.fromDataURL(sigEntrant);
+        }
+        if (sigDriver && padDriver && typeof padDriver.fromDataURL === 'function') {
+            document.getElementById('sigDriverData').value = sigDriver;
+            padDriver.fromDataURL(sigDriver);
+        }
+    }
+
     function validateForm() {
         captureSignatures();
+        var seasonEl = form.querySelector('[name="season"]');
+        if (seasonEl && (!seasonEl.value || seasonEl.value.trim() === '')) {
+            return { valid: false, message: 'Please select Season.', step: 1, element: seasonEl };
+        }
         var textRequired = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email', 'class', 'engine_cc', 'engine_hp', 'car_weight'];
         var textLabels = { entrant: 'Entrant', car_make: 'Car Make', car_model: 'Car Model', car_colour: 'Car Colour', driver_team: 'Driver/Team Name', car_number: 'Car Number', competitor_email: 'Competitor Email', class: 'Class', engine_cc: 'Engine (CC)', engine_hp: 'Engine (HP)', car_weight: 'Car Weight' };
         for (var i = 0; i < textRequired.length; i++) {
@@ -231,6 +278,10 @@
             })
             .then(function (data) {
                 if (data.success) {
+                    try {
+                        var saved = serializeForm();
+                        sessionStorage.setItem('wcmatechsheet_lastForm', JSON.stringify(saved));
+                    } catch (err) { /* ignore */ }
                     window.location.href = 'thank-you.php';
                 } else {
                     if (errorEl) errorEl.textContent = data.error || 'Something went wrong.';
@@ -247,6 +298,42 @@
             });
     });
 
+    function initLoadPrompt() {
+        var overlay = document.getElementById('loadPromptOverlay');
+        var labelEl = document.getElementById('loadPromptLabel');
+        var loadBtn = document.getElementById('loadPromptLoad');
+        var freshBtn = document.getElementById('loadPromptFresh');
+        if (!overlay || !labelEl || !loadBtn || !freshBtn) return;
+
+        var stored = null;
+        try {
+            var raw = sessionStorage.getItem('wcmatechsheet_lastForm');
+            if (raw) stored = JSON.parse(raw);
+        } catch (err) { /* ignore */ }
+
+        if (!stored || !stored.formData) return;
+
+        labelEl.textContent = stored.label || 'Previous submission';
+        overlay.classList.add('visible');
+        overlay.setAttribute('aria-hidden', 'false');
+
+        function hidePrompt() {
+            overlay.classList.remove('visible');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+
+        loadBtn.addEventListener('click', function () {
+            restoreForm(stored);
+            hidePrompt();
+        });
+
+        freshBtn.addEventListener('click', function () {
+            try { sessionStorage.removeItem('wcmatechsheet_lastForm'); } catch (err) { /* ignore */ }
+            hidePrompt();
+        });
+    }
+
     initSteps();
     initSignatures();
+    initLoadPrompt();
 })();
