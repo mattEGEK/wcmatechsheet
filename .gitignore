@@ -1,0 +1,20 @@
+# Config with secrets (use config.example.php as template)
+config.php
+
+# Composer
+/vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp / logs
+*.log
+/tmp/
+*.tmp

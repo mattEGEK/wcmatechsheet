@@ -1,0 +1,11 @@
+{
+    "name": "nascc/tech-sheet",
+    "description": "WCMA Race Tech Sheet form",
+    "require": {
+        "php": ">=7.4",
+        "tecnickcom/tcpdf": "^6.7"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
