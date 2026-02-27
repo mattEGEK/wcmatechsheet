@@ -27,9 +27,6 @@
         progressBar.style.width = (n / totalSteps * 100) + '%';
         progressBar.setAttribute('aria-valuenow', n);
         progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
-        if (n === 4 && padEntrant && padDriver) {
-            reinitSignatures();
-        }
     }
 
     var currentStep = 1;
@@ -72,19 +69,6 @@
         if (clearPads !== false && padDriver) padDriver.clear();
     }
 
-    function reinitSignatures() {
-        if (!padEntrant || !padDriver) return;
-        var dataEntrant = padEntrant.isEmpty() ? null : padEntrant.toDataURL('image/png');
-        var dataDriver = padDriver.isEmpty() ? null : padDriver.toDataURL('image/png');
-        padEntrant.off();
-        padDriver.off();
-        resizeCanvases(false);
-        padEntrant.on();
-        padDriver.on();
-        if (dataEntrant) padEntrant.fromDataURL(dataEntrant);
-        if (dataDriver) padDriver.fromDataURL(dataDriver);
-    }
-
     function initSignatures() {
         const canvasEntrant = document.getElementById('sigEntrant');
         const canvasDriver = document.getElementById('sigDriver');
@@ -102,6 +86,17 @@
         padEntrant.clear();
         padDriver.clear();
 
+        padEntrant.addEventListener('endStroke', function () {
+            if (!padEntrant.isEmpty()) {
+                document.getElementById('sigEntrantData').value = padEntrant.toDataURL('image/png');
+            }
+        });
+        padDriver.addEventListener('endStroke', function () {
+            if (!padDriver.isEmpty()) {
+                document.getElementById('sigDriverData').value = padDriver.toDataURL('image/png');
+            }
+        });
+
         window.addEventListener('resize', function () { resizeCanvases(); });
         window.addEventListener('orientationchange', function () {
             setTimeout(function () { resizeCanvases(); }, 100);
@@ -110,8 +105,14 @@
         document.querySelectorAll('.clear-sig').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-for');
-                if (id === 'sigEntrant' && padEntrant) padEntrant.clear();
-                if (id === 'sigDriver' && padDriver) padDriver.clear();
+                if (id === 'sigEntrant') {
+                    if (padEntrant) padEntrant.clear();
+                    document.getElementById('sigEntrantData').value = '';
+                }
+                if (id === 'sigDriver') {
+                    if (padDriver) padDriver.clear();
+                    document.getElementById('sigDriverData').value = '';
+                }
             });
         });
 
@@ -148,20 +149,21 @@
         e.preventDefault();
         errorEl.textContent = '';
 
-        if (!padEntrant || padEntrant.isEmpty()) {
+        captureSignatures();
+        var sigEntrantVal = document.getElementById('sigEntrantData').value;
+        var sigDriverVal = document.getElementById('sigDriverData').value;
+        if (!sigEntrantVal || sigEntrantVal.length < 50) {
             errorEl.textContent = 'Please sign as Entrant.';
             showStep(4);
             document.getElementById('sigEntrant').scrollIntoView({ behavior: 'smooth' });
             return;
         }
-        if (!padDriver || padDriver.isEmpty()) {
+        if (!sigDriverVal || sigDriverVal.length < 50) {
             errorEl.textContent = 'Please sign as Driver.';
             showStep(4);
             document.getElementById('sigDriver').scrollIntoView({ behavior: 'smooth' });
             return;
         }
-
-        captureSignatures();
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting…';
 

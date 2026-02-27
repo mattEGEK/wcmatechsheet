@@ -225,7 +225,7 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
 
     <footer>Revised 2026</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@5.1.3/dist/signature_pad.umd.min.js"></script>
     <script src="assets/js/form.js"></script>
 </body>
 </html>
