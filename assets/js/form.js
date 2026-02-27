@@ -27,6 +27,8 @@
         progressBar.style.width = (n / totalSteps * 100) + '%';
         progressBar.setAttribute('aria-valuenow', n);
         progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
+        // Scroll to top so the new step content is visible (avoids disjointed feel with varying panel lengths)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     var currentStep = 1;
