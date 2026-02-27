@@ -176,6 +176,7 @@ label:last-child {
 input[type="text"],
 input[type="email"],
 input[type="date"],
+input[type="month"],
 select {
     display: block;
     width: 100%;
@@ -239,7 +240,8 @@ label.full {
 }
 
 .checkgroup .cb.row input[type="text"],
-.checkgroup .cb.row input[type="date"] {
+.checkgroup .cb.row input[type="date"],
+.checkgroup .cb.row input[type="month"] {
     width: auto;
     min-width: 100px;
 }

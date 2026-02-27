@@ -141,11 +141,15 @@ try {
     $y = $pdf->GetY() + 1;
 
     // Two-column checklist - Left col then Right col
+    $seatbeltExpiry = trim($post['seatbelt_expiry'] ?? '');
+    if ($seatbeltExpiry && preg_match('/^\d{4}-\d{2}$/', $seatbeltExpiry)) {
+        $seatbeltExpiry = date('M Y', strtotime($seatbeltExpiry . '-01'));
+    }
     $leftCol = [
         'UNDER VEHICLE' => ['uv_0' => 'Steering linkage', 'uv_1' => 'Suspension & shocks', 'uv_2' => 'Wheel bearing condition', 'uv_3' => 'Brakes & hoses', 'uv_4' => 'Ball joints, rod ends, bushings'],
         'WHEELS and TIRES' => ['wt_0' => 'Wheel and tire condition', 'wt_1' => 'Meets class criteria'],
         'ENGINE COMPARTMENT' => ['ec_0' => 'Fuel pump, lines & fittings zero leaks', 'ec_1' => 'Oil supply tank, oil lines security', 'ec_2' => 'Oil catch tank (min. 1L)', 'ec_3' => 'Coolant hose condition', 'ec_4' => 'Coolant catch tank (min 1L)', 'ec_5' => 'Battery terminal posts insulated', 'ec_6' => 'Battery mount', 'ec_7' => 'Wiring mounting and integrity', 'ec_8' => 'Carburetion / fuel injection security'],
-        'VEHICLE INTERIOR' => ['vi_0' => 'Roll bar padding/roll cage integrity', 'vi_1' => 'Accessories properly mounted', 'vi_2' => "Driver's seat securely mounted", 'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes', 'vi_5' => 'Window net/Arm restraints', 'vi_6' => 'Window net release mechanism', 'fire_ext' => 'Fire Extinguisher – Type ' . ($post['fire_ext_type'] ?? '') . ' Age ' . ($post['fire_ext_age'] ?? ''), 'seatbelt' => 'Seat belts (5 or 6 point) (Expiry date) ' . ($post['seatbelt_expiry'] ?? '')],
+        'VEHICLE INTERIOR' => ['vi_0' => 'Roll bar padding/roll cage integrity', 'vi_1' => 'Accessories properly mounted', 'vi_2' => "Driver's seat securely mounted", 'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes', 'vi_5' => 'Window net/Arm restraints', 'vi_6' => 'Window net release mechanism', 'fire_ext' => 'Fire Extinguisher', 'seatbelt' => 'Seat belts (5 or 6 point) (Expiry date) ' . $seatbeltExpiry],
     ];
     $rightCol = [
         'VEHICLE EXTERIOR' => ['ve_0' => 'Front and Rear tow points', 've_1' => 'Appearance and Markings', 've_2' => 'Body panels secure', 've_3' => 'Windshield & windows', 've_4' => 'Headlights (Night and Ice events)', 've_5' => 'Brake & tail lights as per class rules', 've_6' => 'Exhaust system meets regulations', 've_7' => 'Window clips or Urethane', 've_8' => 'Bumper condition/attachment', 've_9' => 'Exterior mirrors (2)', 've_10' => 'Master switch - kills engine', 've_11' => 'Aero and Mud flaps secure', 've_12' => 'Rain lights/Rear facing light', 've_13' => 'Hood and Trunk fastened properly'],
@@ -174,9 +178,7 @@ try {
             $pdf->SetFont('helvetica', '', 6);
             foreach ($items as $key => $label) {
                 $checked = ' ';
-                if ($key === 'fire_ext') {
-                    $checked = (!empty($post['fire_ext_type']) || !empty($post['fire_ext_age'])) ? 'X' : ' ';
-                } elseif ($key === 'seatbelt') {
+                if ($key === 'seatbelt') {
                     $checked = !empty($post['seatbelt_expiry']) ? 'X' : ' ';
                 } elseif (isset($post[$key]) && $post[$key]) {
                     $checked = 'X';

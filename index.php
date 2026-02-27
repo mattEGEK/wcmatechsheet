@@ -107,13 +107,10 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                     }
                     ?>
                 </div>
-                <label class="cb row">
-                    <span>Fire Extinguisher</span>
-                    <span><input type="text" name="fire_ext_type" placeholder="Type"> <input type="text" name="fire_ext_age" placeholder="Age"></span>
-                </label>
+                <label class="cb"><input type="checkbox" name="fire_ext" value="1"> Fire Extinguisher</label>
                 <label class="cb row">
                     <span>Seat belts (5 or 6 point) Expiry date</span>
-                    <span><input type="date" name="seatbelt_expiry"></span>
+                    <span><input type="month" name="seatbelt_expiry"></span>
                 </label>
                 <div class="step-actions">
                     <button type="button" class="btn-prev">Back</button>
