@@ -145,7 +145,18 @@ try {
     $rightCol = [
         'VEHICLE EXTERIOR' => ['ve_0' => 'Front and Rear tow points', 've_1' => 'Appearance and Markings', 've_2' => 'Body panels secure', 've_3' => 'Windshield & windows', 've_4' => 'Headlights (Night and Ice events)', 've_5' => 'Brake & tail lights as per class rules', 've_6' => 'Exhaust system meets regulations', 've_7' => 'Window clips or Urethane', 've_8' => 'Bumper condition/attachment', 've_9' => 'Exterior mirrors (2)', 've_10' => 'Master switch - kills engine', 've_11' => 'Aero and Mud flaps secure', 've_12' => 'Rain lights/Rear facing light', 've_13' => 'Hood and Trunk fastened properly'],
         'FUEL TANK COMPARTMENT' => ['ft_0' => 'Proper ventilation and check valves', 'ft_1' => 'Surge tank safely mounted', 'ft_2' => 'Firewall/bulkhead', 'ft_3' => 'Fuel tank/fuel cell securely mounted'],
-        'DRIVER SAFETY EQUIPMENT' => ['ds_0' => 'Helmet- Rating', 'ds_1' => 'Goggles or visor', 'ds_2' => 'Suit - Rating', 'ds_3' => 'Underwear (if required)', 'ds_4' => 'Shoes', 'ds_5' => 'Socks', 'ds_6' => 'Gloves', 'ds_7' => 'Balaclava', 'ds_8' => 'Head & Neck Restraints'],
+    ];
+
+    $driverSafetyFields = [
+        ['type' => 'dropdown', 'name' => 'helmet_rating', 'label' => 'Helmet-Rating'],
+        ['type' => 'checkbox', 'name' => 'goggles_visor', 'label' => 'Goggles or visor'],
+        ['type' => 'dropdown', 'name' => 'suit_rating', 'label' => 'Suit-Rating'],
+        ['type' => 'checkbox', 'name' => 'underwear', 'label' => 'Underwear (if required)'],
+        ['type' => 'dropdown', 'name' => 'shoes', 'label' => 'Shoes'],
+        ['type' => 'dropdown', 'name' => 'socks', 'label' => 'Socks'],
+        ['type' => 'dropdown', 'name' => 'gloves', 'label' => 'Gloves'],
+        ['type' => 'dropdown', 'name' => 'balaclava', 'label' => 'Balaclava'],
+        ['type' => 'dropdown', 'name' => 'head_neck_restraint', 'label' => 'Head & Neck Restraint'],
     ];
 
     function renderCheckColumn($pdf, $sections, $post, $x, $colW, $lh) {
@@ -175,11 +186,37 @@ try {
         return $y;
     }
 
+    function renderDriverSafetySection($pdf, $post, $fields, $x, $colW, $lh) {
+        $y = $pdf->GetY();
+        $pdf->SetFont('helvetica', 'B', 7);
+        $pdf->SetXY($x, $y);
+        $pdf->Cell($colW - 10, $lh, 'DRIVER SAFETY EQUIPMENT', 0, 0);
+        $y += $lh + 0.5;
+        $pdf->SetFont('helvetica', '', 6);
+        foreach ($fields as $field) {
+            $pdf->SetXY($x, $y);
+            if ($field['type'] === 'checkbox') {
+                $checked = (!empty($post[$field['name']]) && $post[$field['name']]) ? 'X' : ' ';
+                $pdf->Cell(5, $lh, '[' . $checked . ']', 0, 0);
+                $pdf->Cell($colW - 15, $lh, $field['label'], 0, 0);
+            } else {
+                $val = trim($post[$field['name']] ?? '');
+                $label = $field['label'] . ': ' . ($val !== '' ? $val : '');
+                $pdf->Cell(5, $lh, '', 0, 0);
+                $pdf->Cell($colW - 15, $lh, $label, 0, 0);
+            }
+            $y += $lh;
+        }
+        return $y + 1;
+    }
+
     $pdf->SetY($y);
     $yStart = $y;
     $yLeft = renderCheckColumn($pdf, $leftCol, $post, $x, $colW, $lh);
     $pdf->SetY($yStart);
     $yRight = renderCheckColumn($pdf, $rightCol, $post, $x + $colW, $colW, $lh);
+    $pdf->SetY($yRight);
+    $yRight = renderDriverSafetySection($pdf, $post, $driverSafetyFields, $x + $colW, $colW, $lh);
     $y = max($yLeft, $yRight) + 2;
 
     // Footer: Declaration, Signatures, Date Submitted, Log Book
@@ -213,11 +250,10 @@ try {
         }
     }
     $pdf->SetY($pdf->GetY() + $sigH + 1);
-    $pdf->Cell(0, $lh, "Tech Representative's Signature: (Tech fills at track)", 0, 1);
     $pdf->Cell(0, $lh, 'Date Submitted: ' . $dateSubmitted, 0, 1);
     $pdf->Cell(0, $lh, 'Vehicle Log Book Turned In: ' . (($post['logbook'] ?? '') === 'yes' ? 'Yes' : (($post['logbook'] ?? '') === 'no' ? 'No' : '')), 0, 1);
     $pdf->SetFont('helvetica', '', 6);
-    $pdf->Cell(0, 4, 'Revised 2021', 0, 1);
+    $pdf->Cell(0, 4, 'Revised 2026', 0, 1);
 
     $pdfContent = $pdf->Output('', 'S');
 

@@ -27,6 +27,9 @@
         progressBar.style.width = (n / totalSteps * 100) + '%';
         progressBar.setAttribute('aria-valuenow', n);
         progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
+        if (n === 4 && padEntrant && padDriver) {
+            reinitSignatures();
+        }
     }
 
     var currentStep = 1;
@@ -51,37 +54,41 @@
         });
     }
 
-    function initCheckAll() {
-        const btn = document.getElementById('checkAllBtn');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('[data-verify] input[type="checkbox"]').forEach(function (cb) {
-                cb.checked = true;
-            });
-            btn.textContent = 'All Verified';
-            btn.disabled = true;
+    function resizeCanvases(clearPads) {
+        const canvasEntrant = document.getElementById('sigEntrant');
+        const canvasDriver = document.getElementById('sigDriver');
+        if (!canvasEntrant || !canvasDriver) return;
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        [canvasEntrant, canvasDriver].forEach(function (c) {
+            var w = c.offsetWidth || c.getBoundingClientRect().width || 300;
+            var h = c.offsetHeight || c.getBoundingClientRect().height || 120;
+            if (w < 1 || h < 1) { w = 300; h = 120; }
+            c.width = Math.floor(w * ratio);
+            c.height = Math.floor(h * ratio);
+            var ctx = c.getContext('2d');
+            ctx.scale(ratio, ratio);
         });
+        if (clearPads !== false && padEntrant) padEntrant.clear();
+        if (clearPads !== false && padDriver) padDriver.clear();
+    }
+
+    function reinitSignatures() {
+        if (!padEntrant || !padDriver) return;
+        var dataEntrant = padEntrant.isEmpty() ? null : padEntrant.toDataURL('image/png');
+        var dataDriver = padDriver.isEmpty() ? null : padDriver.toDataURL('image/png');
+        padEntrant.off();
+        padDriver.off();
+        resizeCanvases(false);
+        padEntrant.on();
+        padDriver.on();
+        if (dataEntrant) padEntrant.fromDataURL(dataEntrant);
+        if (dataDriver) padDriver.fromDataURL(dataDriver);
     }
 
     function initSignatures() {
         const canvasEntrant = document.getElementById('sigEntrant');
         const canvasDriver = document.getElementById('sigDriver');
         if (!canvasEntrant || !canvasDriver || typeof SignaturePad === 'undefined') return;
-
-        function resizeCanvases() {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            [canvasEntrant, canvasDriver].forEach(function (c) {
-                var w = c.offsetWidth || c.getBoundingClientRect().width || 300;
-                var h = c.offsetHeight || c.getBoundingClientRect().height || 120;
-                if (w < 1 || h < 1) { w = 300; h = 120; }
-                c.width = w * ratio;
-                c.height = h * ratio;
-                var ctx = c.getContext('2d');
-                ctx.scale(ratio, ratio);
-            });
-            if (padEntrant) padEntrant.clear();
-            if (padDriver) padDriver.clear();
-        }
 
         resizeCanvases();
         padEntrant = new SignaturePad(canvasEntrant, {
@@ -95,9 +102,9 @@
         padEntrant.clear();
         padDriver.clear();
 
-        window.addEventListener('resize', resizeCanvases);
+        window.addEventListener('resize', function () { resizeCanvases(); });
         window.addEventListener('orientationchange', function () {
-            setTimeout(resizeCanvases, 100);
+            setTimeout(function () { resizeCanvases(); }, 100);
         });
 
         document.querySelectorAll('.clear-sig').forEach(function (btn) {
@@ -107,6 +114,25 @@
                 if (id === 'sigDriver' && padDriver) padDriver.clear();
             });
         });
+
+        canvasEntrant.addEventListener('touchstart', function () { canvasEntrant.focus(); }, { passive: true });
+        canvasDriver.addEventListener('touchstart', function () { canvasDriver.focus(); }, { passive: true });
+
+        document.addEventListener('touchstart', function (e) {
+            if (e.target === canvasEntrant || e.target === canvasDriver) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false, capture: true });
+        document.addEventListener('touchmove', function (e) {
+            if (e.target === canvasEntrant || e.target === canvasDriver) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false, capture: true });
+        document.addEventListener('touchend', function (e) {
+            if (e.target === canvasEntrant || e.target === canvasDriver) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false, capture: true });
     }
 
     function captureSignatures() {
@@ -167,6 +193,5 @@
     });
 
     initSteps();
-    initCheckAll();
     initSignatures();
 })();

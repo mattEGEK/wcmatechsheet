@@ -129,29 +129,6 @@ header {
     background: #a00;
 }
 
-.check-all-wrap {
-    margin: 1rem 0;
-}
-
-#checkAllBtn {
-    padding: 0.6rem 1rem;
-    font-size: 0.95rem;
-    background: #2a7;
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-}
-
-#checkAllBtn:hover:not(:disabled) {
-    background: #196;
-}
-
-#checkAllBtn:disabled {
-    background: #8a8;
-    cursor: default;
-}
-
 form {
     max-width: 600px;
     margin: 0 auto;
@@ -198,7 +175,8 @@ label:last-child {
 
 input[type="text"],
 input[type="email"],
-input[type="date"] {
+input[type="date"],
+select {
     display: block;
     width: 100%;
     min-height: var(--tap);
@@ -209,7 +187,8 @@ input[type="date"] {
     border-radius: 4px;
 }
 
-input:focus {
+input:focus,
+select:focus {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -271,6 +250,22 @@ label.full {
     color: #666;
 }
 
+.driver-safety-fields {
+    margin-bottom: 1.5rem;
+}
+
+.driver-safety-fields label.cb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.driver-safety-fields label.cb input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
 .sig-group {
     display: flex;
     flex-direction: column;
@@ -282,10 +277,9 @@ label.full {
     border-radius: var(--radius);
     padding: 0.75rem;
     background: #fafafa;
-}
-
-.sig-box.placeholder {
-    background: #eee;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
 }
 
 .sig-box canvas {
@@ -300,6 +294,9 @@ label.full {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+    cursor: crosshair;
 }
 
 .sig-box label {

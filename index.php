@@ -121,26 +121,82 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                 </div>
             </section>
 
-            <!-- Step 4: Driver Safety (tech fills), Signatures -->
+            <!-- Step 4: Driver Safety, Signatures -->
             <section class="form-section step-panel" data-step="4">
                 <h2>Driver Safety & Signatures</h2>
-                <p class="tech-fills">Driver Safety Equipment – Tech fills at track</p>
+                <div class="driver-safety-fields grid-2">
+                    <label>Helmet-Rating
+                        <select name="helmet_rating">
+                            <option value="">Select…</option>
+                            <option value="FIA">FIA</option>
+                            <option value="SA2015">SA2015</option>
+                            <option value="SA2020">SA2020</option>
+                            <option value="SA2025">SA2025</option>
+                        </select>
+                    </label>
+                    <label class="cb"><input type="checkbox" name="goggles_visor" value="1"> Goggles or visor</label>
+                    <label>Suit-Rating
+                        <select name="suit_rating">
+                            <option value="">Select…</option>
+                            <option value="FR (Ice Race Only)">FR (Ice Race Only)</option>
+                            <option value="SFI">SFI</option>
+                            <option value="FIA">FIA</option>
+                        </select>
+                    </label>
+                    <label class="cb"><input type="checkbox" name="underwear" value="1"> Underwear (if required)</label>
+                    <label>Shoes
+                        <select name="shoes">
+                            <option value="">Select…</option>
+                            <option value="SFI">SFI</option>
+                            <option value="FIA">FIA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label>Socks
+                        <select name="socks">
+                            <option value="">Select…</option>
+                            <option value="SFI">SFI</option>
+                            <option value="FIA">FIA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label>Gloves
+                        <select name="gloves">
+                            <option value="">Select…</option>
+                            <option value="SFI">SFI</option>
+                            <option value="FIA">FIA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label>Balaclava
+                        <select name="balaclava">
+                            <option value="">Select…</option>
+                            <option value="SFI">SFI</option>
+                            <option value="FIA">FIA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label class="full">Head & Neck Restraint
+                        <select name="head_neck_restraint">
+                            <option value="">Select…</option>
+                            <option value="HANS">HANS</option>
+                            <option value="Other HANS type">Other HANS type</option>
+                            <option value="None (Ice Race Only)">None (Ice Race Only)</option>
+                        </select>
+                    </label>
+                </div>
                 <div class="sig-group">
                     <div class="sig-box">
                         <label>Entrant's Signature</label>
-                        <canvas id="sigEntrant" width="300" height="120"></canvas>
+                        <canvas id="sigEntrant" width="300" height="120" tabindex="0" title="Tap to sign"></canvas>
                         <input type="hidden" name="sig_entrant" id="sigEntrantData">
                         <button type="button" class="clear-sig" data-for="sigEntrant">Clear</button>
                     </div>
                     <div class="sig-box">
                         <label>Driver's Signature</label>
-                        <canvas id="sigDriver" width="300" height="120"></canvas>
+                        <canvas id="sigDriver" width="300" height="120" tabindex="0" title="Tap to sign"></canvas>
                         <input type="hidden" name="sig_driver" id="sigDriverData">
                         <button type="button" class="clear-sig" data-for="sigDriver">Clear</button>
-                    </div>
-                    <div class="sig-box placeholder">
-                        <label>Tech Representative's Signature</label>
-                        <p>Tech fills at track</p>
                     </div>
                 </div>
                 <div class="step-actions">
@@ -157,9 +213,6 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                     <span><input type="radio" name="logbook" value="yes"> Yes <input type="radio" name="logbook" value="no"> No</span>
                 </label>
                 <p class="declaration">Participants Declaration: I hereby stipulate that the above vehicle meets the regulations for the event.</p>
-                <div class="check-all-wrap">
-                    <button type="button" id="checkAllBtn">Check All Verification Items</button>
-                </div>
                 <div class="step-actions">
                     <button type="button" class="btn-prev">Back</button>
                     <button type="submit" id="submitBtn">Submit Tech Sheet</button>
@@ -170,7 +223,7 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
         </div>
     </form>
 
-    <footer>Revised 2021</footer>
+    <footer>Revised 2026</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="assets/js/form.js"></script>
