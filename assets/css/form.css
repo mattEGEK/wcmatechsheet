@@ -77,6 +77,26 @@ header {
     color: #666;
 }
 
+.required-hint {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.req-asterisk {
+    color: var(--accent);
+}
+
+.form-error {
+    margin: 0.5rem 0 0;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-error:empty {
+    display: none;
+}
+
 .steps {
     overflow: hidden;
     position: relative;

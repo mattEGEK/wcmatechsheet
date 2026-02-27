@@ -34,7 +34,9 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
         <div class="progress-wrap">
             <div class="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="5" id="progressBar"></div>
             <p class="progress-text" id="progressText">Step 1 of 5</p>
+            <p class="required-hint">Fields marked with <span class="req-asterisk">*</span> are required</p>
         </div>
+        <p id="formError" class="error form-error" aria-live="polite"></p>
 
         <div class="steps" id="stepsContainer">
             <div class="steps-inner" id="stepsInner">
@@ -42,17 +44,17 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             <section class="form-section step-panel" data-step="1">
                 <h2>Vehicle Information</h2>
                 <div class="grid-2">
-                    <label>Entrant <input type="text" name="entrant" required></label>
-                    <label>Car Make <input type="text" name="car_make" required></label>
-                    <label>Car Model <input type="text" name="car_model" required></label>
-                    <label>Car Colour <input type="text" name="car_colour" required></label>
-                    <label>Driver/Team Name <input type="text" name="driver_team" required></label>
-                    <label>Car Number <input type="text" name="car_number" required></label>
-                    <label>Class <input type="text" name="class"></label>
-                    <label>Engine (CC) <input type="text" name="engine_cc" inputmode="numeric"></label>
-                    <label>Engine (HP) <input type="text" name="engine_hp" inputmode="numeric"></label>
-                    <label>Car Weight <input type="text" name="car_weight"></label>
-                    <label class="full">Competitor Email <input type="email" name="competitor_email" required placeholder="For your copy of the PDF"></label>
+                    <label class="req">Entrant <span class="req-asterisk">*</span> <input type="text" name="entrant" required></label>
+                    <label class="req">Car Make <span class="req-asterisk">*</span> <input type="text" name="car_make" required></label>
+                    <label class="req">Car Model <span class="req-asterisk">*</span> <input type="text" name="car_model" required></label>
+                    <label class="req">Car Colour <span class="req-asterisk">*</span> <input type="text" name="car_colour" required></label>
+                    <label class="req">Driver/Team Name <span class="req-asterisk">*</span> <input type="text" name="driver_team" required></label>
+                    <label class="req">Car Number <span class="req-asterisk">*</span> <input type="text" name="car_number" required></label>
+                    <label class="req">Class <span class="req-asterisk">*</span> <input type="text" name="class" required></label>
+                    <label class="req">Engine (CC) <span class="req-asterisk">*</span> <input type="text" name="engine_cc" inputmode="numeric" required></label>
+                    <label class="req">Engine (HP) <span class="req-asterisk">*</span> <input type="text" name="engine_hp" inputmode="numeric" required></label>
+                    <label class="req">Car Weight <span class="req-asterisk">*</span> <input type="text" name="car_weight" required></label>
+                    <label class="req full">Competitor Email <span class="req-asterisk">*</span> <input type="email" name="competitor_email" required placeholder="For your copy of the PDF"></label>
                 </div>
                 <div class="step-actions">
                     <button type="button" class="btn-next">Next</button>
@@ -64,6 +66,7 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                 <h2>Under Vehicle, Wheels & Tires, Engine</h2>
                 <div class="checkgroup" data-verify>
                     <?php
+                    $step2Required = ['uv_0', 'uv_1', 'uv_2', 'uv_3', 'uv_4', 'wt_0', 'wt_1', 'ec_0', 'ec_1', 'ec_3', 'ec_5', 'ec_6', 'ec_7', 'ec_8'];
                     $step2 = [
                         'uv_0' => 'Steering linkage', 'uv_1' => 'Suspension & shocks', 'uv_2' => 'Wheel bearing condition',
                         'uv_3' => 'Brakes & hoses', 'uv_4' => 'Ball joints, rod ends, bushings',
@@ -74,7 +77,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                         'ec_8' => 'Carburetion / fuel injection security'
                     ];
                     foreach ($step2 as $name => $label) {
-                        echo "<label class='cb'><input type='checkbox' name='{$name}' value='1'> {$label}</label>";
+                        $reqClass = in_array($name, $step2Required) ? ' cb req' : ' cb';
+                        echo "<label class='{$reqClass}'><input type='checkbox' name='{$name}' value='1'> {$label}" . (in_array($name, $step2Required) ? ' <span class=\"req-asterisk\">*</span>' : '') . "</label>";
                     }
                     ?>
                 </div>
@@ -89,6 +93,7 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                 <h2>Interior, Exterior & Fuel Tank</h2>
                 <div class="checkgroup" data-verify>
                     <?php
+                    $step3Required = ['vi_1', 'vi_2', 'vi_3', 'vi_4', 've_0', 've_1', 've_2', 've_3', 've_4', 've_5', 've_6', 've_8', 've_11', 've_13', 'ft_2', 'ft_3'];
                     $step3 = [
                         'vi_0' => 'Roll bar padding/roll cage integrity', 'vi_1' => 'Accessories properly mounted',
                         'vi_2' => "Driver's seat securely mounted", 'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes',
@@ -103,7 +108,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                         'ft_2' => 'Firewall/bulkhead', 'ft_3' => 'Fuel tank/fuel cell securely mounted'
                     ];
                     foreach ($step3 as $name => $label) {
-                        echo "<label class='cb'><input type='checkbox' name='{$name}' value='1'> {$label}</label>";
+                        $reqClass = in_array($name, $step3Required) ? ' cb req' : ' cb';
+                        echo "<label class='{$reqClass}'><input type='checkbox' name='{$name}' value='1'> {$label}" . (in_array($name, $step3Required) ? ' <span class=\"req-asterisk\">*</span>' : '') . "</label>";
                     }
                     ?>
                 </div>
@@ -122,8 +128,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             <section class="form-section step-panel" data-step="4">
                 <h2>Driver Safety & Signatures</h2>
                 <div class="driver-safety-fields grid-2">
-                    <label>Helmet-Rating
-                        <select name="helmet_rating">
+                    <label class="req">Helmet-Rating <span class="req-asterisk">*</span>
+                        <select name="helmet_rating" required>
                             <option value="">Select…</option>
                             <option value="FIA">FIA</option>
                             <option value="SA2015">SA2015</option>
@@ -132,8 +138,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                         </select>
                     </label>
                     <label class="cb"><input type="checkbox" name="goggles_visor" value="1"> Goggles or visor</label>
-                    <label>Suit-Rating
-                        <select name="suit_rating">
+                    <label class="req">Suit-Rating <span class="req-asterisk">*</span>
+                        <select name="suit_rating" required>
                             <option value="">Select…</option>
                             <option value="FR (Ice Race Only)">FR (Ice Race Only)</option>
                             <option value="SFI">SFI</option>
@@ -173,8 +179,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                             <option value="Other">Other</option>
                         </select>
                     </label>
-                    <label class="full">Head & Neck Restraint
-                        <select name="head_neck_restraint">
+                    <label class="req full">Head & Neck Restraint <span class="req-asterisk">*</span>
+                        <select name="head_neck_restraint" required>
                             <option value="">Select…</option>
                             <option value="HANS">HANS</option>
                             <option value="Other HANS type">Other HANS type</option>
@@ -184,13 +190,13 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                 </div>
                 <div class="sig-group">
                     <div class="sig-box">
-                        <label>Entrant's Signature</label>
+                        <label class="req">Entrant's Signature <span class="req-asterisk">*</span></label>
                         <canvas id="sigEntrant" width="300" height="120" tabindex="0" title="Tap to sign"></canvas>
                         <input type="hidden" name="sig_entrant" id="sigEntrantData">
                         <button type="button" class="clear-sig" data-for="sigEntrant">Clear</button>
                     </div>
                     <div class="sig-box">
-                        <label>Driver's Signature</label>
+                        <label class="req">Driver's Signature <span class="req-asterisk">*</span></label>
                         <canvas id="sigDriver" width="300" height="120" tabindex="0" title="Tap to sign"></canvas>
                         <input type="hidden" name="sig_driver" id="sigDriverData">
                         <button type="button" class="clear-sig" data-for="sigDriver">Clear</button>
@@ -205,19 +211,17 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             <!-- Step 5: Review, Log Book, Submit -->
             <section class="form-section step-panel" data-step="5">
                 <h2>Review & Submit</h2>
-                <label class="radio-group">
-                    Vehicle Log Book Turned In
-                    <span><input type="radio" name="logbook" value="yes"> Yes <input type="radio" name="logbook" value="no"> No</span>
+                <label class="radio-group req">Vehicle Log Book Turned In <span class="req-asterisk">*</span>
+                    <span><input type="radio" name="logbook" value="yes" required> Yes <input type="radio" name="logbook" value="no"> No</span>
                 </label>
-                <label class="declaration cb">
+                <label class="declaration cb req">
                     <input type="checkbox" name="declaration_agree" value="1" required>
-                    I agree – I hereby stipulate that the above vehicle meets the regulations for the event.
+                    I agree – I hereby stipulate that the above vehicle meets the regulations for the event. <span class="req-asterisk">*</span>
                 </label>
                 <div class="step-actions">
                     <button type="button" class="btn-prev">Back</button>
                     <button type="submit" id="submitBtn">Submit Tech Sheet</button>
                 </div>
-                <p id="submitError" class="error" aria-live="polite"></p>
             </section>
             </div>
         </div>

@@ -3,7 +3,7 @@
 
     const form = document.getElementById('techForm');
     const submitBtn = document.getElementById('submitBtn');
-    const errorEl = document.getElementById('submitError');
+    const errorEl = document.getElementById('formError');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const panels = document.querySelectorAll('.step-panel');
@@ -147,32 +147,74 @@
         }
     }
 
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        errorEl.textContent = '';
-
+    function validateForm() {
         captureSignatures();
-        var declCheck = form.querySelector('input[name="declaration_agree"]');
-        if (!declCheck || !declCheck.checked) {
-            errorEl.textContent = 'You must agree to the Participants Declaration to submit.';
-            showStep(5);
-            declCheck && declCheck.focus();
-            return;
+        var textRequired = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email', 'class', 'engine_cc', 'engine_hp', 'car_weight'];
+        var textLabels = { entrant: 'Entrant', car_make: 'Car Make', car_model: 'Car Model', car_colour: 'Car Colour', driver_team: 'Driver/Team Name', car_number: 'Car Number', competitor_email: 'Competitor Email', class: 'Class', engine_cc: 'Engine (CC)', engine_hp: 'Engine (HP)', car_weight: 'Car Weight' };
+        for (var i = 0; i < textRequired.length; i++) {
+            var name_ = textRequired[i];
+            var el = form.querySelector('[name="' + name_ + '"]');
+            if (!el) continue;
+            var val = (el.value || '').trim();
+            if (val === '') return { valid: false, message: 'Please fill in: ' + textLabels[name_], step: 1, element: el };
+            if (name_ === 'competitor_email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                return { valid: false, message: 'Please enter a valid email address.', step: 1, element: el };
+            }
         }
-        var sigEntrantVal = document.getElementById('sigEntrantData').value;
-        var sigDriverVal = document.getElementById('sigDriverData').value;
+        var checkboxRequired = ['uv_0', 'uv_1', 'uv_2', 'uv_3', 'uv_4', 'wt_0', 'wt_1', 'ec_0', 'ec_1', 'ec_3', 'ec_5', 'ec_6', 'ec_7', 'ec_8', 'vi_1', 'vi_2', 'vi_3', 'vi_4', 've_0', 've_1', 've_2', 've_3', 've_4', 've_5', 've_6', 've_8', 've_11', 've_13', 'ft_2', 'ft_3'];
+        var cbLabels = { uv_0: 'Steering linkage', uv_1: 'Suspension & shocks', uv_2: 'Wheel bearing condition', uv_3: 'Brakes & hoses', uv_4: 'Ball joints, rod ends, bushings', wt_0: 'Wheel and tire condition', wt_1: 'Meets class criteria', ec_0: 'Fuel pump, lines & fittings zero leaks', ec_1: 'Oil supply tank, oil lines security', ec_3: 'Coolant hose condition', ec_5: 'Battery terminal posts insulated', ec_6: 'Battery mount', ec_7: 'Wiring mounting and integrity', ec_8: 'Carburetion / fuel injection security', vi_1: 'Accessories properly mounted', vi_2: "Driver's seat securely mounted", vi_3: 'Rearview mirror', vi_4: 'Firewall and floor have no holes', ve_0: 'Front and Rear tow points', ve_1: 'Appearance and Markings', ve_2: 'Body panels secure', ve_3: 'Windshield & windows', ve_4: 'Headlights (Night and Ice events)', ve_5: 'Brake & tail lights as per class rules', ve_6: 'Exhaust system meets regulations', ve_8: 'Bumper condition/attachment', ve_11: 'Aero and Mud flaps secure', ve_13: 'Hood and Trunk fastened properly', ft_2: 'Firewall/bulkhead', ft_3: 'Fuel tank/fuel cell securely mounted' };
+        for (var j = 0; j < checkboxRequired.length; j++) {
+            var cbName = checkboxRequired[j];
+            var cb = form.querySelector('input[name="' + cbName + '"]');
+            if (!cb || !cb.checked) {
+                return { valid: false, message: 'Please complete: ' + (cbLabels[cbName] || cbName), step: cbName.indexOf('vi_') === 0 || cbName.indexOf('ve_') === 0 || cbName.indexOf('ft_') === 0 ? 3 : 2, element: cb };
+            }
+        }
+        var selectRequired = ['helmet_rating', 'suit_rating', 'head_neck_restraint'];
+        var selLabels = { helmet_rating: 'Helmet-Rating', suit_rating: 'Suit-Rating', head_neck_restraint: 'Head & Neck Restraint' };
+        for (var k = 0; k < selectRequired.length; k++) {
+            var selName = selectRequired[k];
+            var sel = form.querySelector('[name="' + selName + '"]');
+            if (!sel || !sel.value || sel.value.trim() === '') {
+                return { valid: false, message: 'Please select: ' + selLabels[selName], step: 4, element: sel };
+            }
+        }
+        var sigEntrantVal = document.getElementById('sigEntrantData') ? document.getElementById('sigEntrantData').value : '';
+        var sigDriverVal = document.getElementById('sigDriverData') ? document.getElementById('sigDriverData').value : '';
         if (!sigEntrantVal || sigEntrantVal.length < 50) {
-            errorEl.textContent = 'Please sign as Entrant.';
-            showStep(4);
-            document.getElementById('sigEntrant').scrollIntoView({ behavior: 'smooth' });
-            return;
+            return { valid: false, message: 'Please sign as Entrant.', step: 4, element: document.getElementById('sigEntrant') };
         }
         if (!sigDriverVal || sigDriverVal.length < 50) {
-            errorEl.textContent = 'Please sign as Driver.';
-            showStep(4);
-            document.getElementById('sigDriver').scrollIntoView({ behavior: 'smooth' });
+            return { valid: false, message: 'Please sign as Driver.', step: 4, element: document.getElementById('sigDriver') };
+        }
+        var logbookChecked = form.querySelector('input[name="logbook"]:checked');
+        if (!logbookChecked || (logbookChecked.value !== 'yes' && logbookChecked.value !== 'no')) {
+            return { valid: false, message: 'Please indicate whether the Vehicle Log Book was turned in.', step: 5, element: form.querySelector('input[name="logbook"]') };
+        }
+        var declCheck = form.querySelector('input[name="declaration_agree"]');
+        if (!declCheck || !declCheck.checked) {
+            return { valid: false, message: 'You must agree to the Participants Declaration to submit.', step: 5, element: declCheck };
+        }
+        return { valid: true };
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (errorEl) errorEl.textContent = '';
+
+        var result = validateForm();
+        if (!result.valid) {
+            if (errorEl) errorEl.textContent = result.message;
+            showStep(result.step);
+            if (result.element) {
+                setTimeout(function () {
+                    result.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (result.element.focus) result.element.focus();
+                }, 350);
+            }
             return;
         }
+
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting…';
 
@@ -191,15 +233,17 @@
                 if (data.success) {
                     window.location.href = 'thank-you.php';
                 } else {
-                    errorEl.textContent = data.error || 'Something went wrong.';
+                    if (errorEl) errorEl.textContent = data.error || 'Something went wrong.';
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Tech Sheet';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             })
             .catch(function () {
-                errorEl.textContent = 'Something went wrong. Please try again.';
+                if (errorEl) errorEl.textContent = 'Something went wrong. Please try again.';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Tech Sheet';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
     });
 

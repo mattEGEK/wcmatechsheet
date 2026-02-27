@@ -26,27 +26,86 @@ if (!empty($post['website'])) {
     sendJsonResponse(false, 'Submission rejected.');
 }
 
-// Required fields
-$required = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email'];
-foreach ($required as $field) {
+// Field name to friendly label for error messages
+$fieldLabels = [
+    'entrant' => 'Entrant', 'car_make' => 'Car Make', 'car_model' => 'Car Model', 'car_colour' => 'Car Colour',
+    'driver_team' => 'Driver/Team Name', 'car_number' => 'Car Number', 'competitor_email' => 'Competitor Email',
+    'class' => 'Class', 'engine_cc' => 'Engine (CC)', 'engine_hp' => 'Engine (HP)', 'car_weight' => 'Car Weight',
+    'uv_0' => 'Steering linkage', 'uv_1' => 'Suspension & shocks', 'uv_2' => 'Wheel bearing condition',
+    'uv_3' => 'Brakes & hoses', 'uv_4' => 'Ball joints, rod ends, bushings',
+    'wt_0' => 'Wheel and tire condition', 'wt_1' => 'Meets class criteria',
+    'ec_0' => 'Fuel pump, lines & fittings zero leaks', 'ec_1' => 'Oil supply tank, oil lines security',
+    'ec_3' => 'Coolant hose condition', 'ec_5' => 'Battery terminal posts insulated',
+    'ec_6' => 'Battery mount', 'ec_7' => 'Wiring mounting and integrity', 'ec_8' => 'Carburetion / fuel injection security',
+    'vi_1' => 'Accessories properly mounted', 'vi_2' => "Driver's seat securely mounted",
+    'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes',
+    've_0' => 'Front and Rear tow points', 've_1' => 'Appearance and Markings', 've_2' => 'Body panels secure',
+    've_3' => 'Windshield & windows', 've_4' => 'Headlights (Night and Ice events)',
+    've_5' => 'Brake & tail lights as per class rules', 've_6' => 'Exhaust system meets regulations',
+    've_8' => 'Bumper condition/attachment', 've_11' => 'Aero and Mud flaps secure',
+    've_13' => 'Hood and Trunk fastened properly',
+    'ft_2' => 'Firewall/bulkhead', 'ft_3' => 'Fuel tank/fuel cell securely mounted',
+    'helmet_rating' => 'Helmet-Rating', 'suit_rating' => 'Suit-Rating', 'head_neck_restraint' => 'Head & Neck Restraint',
+    'logbook' => 'Vehicle Log Book Turned In', 'sig_entrant' => "Entrant's signature", 'sig_driver' => "Driver's signature",
+    'declaration_agree' => 'Participants Declaration',
+];
+
+$missing = [];
+
+// Step 1 text fields
+$textRequired = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email', 'class', 'engine_cc', 'engine_hp', 'car_weight'];
+foreach ($textRequired as $field) {
     if (empty(trim($post[$field] ?? ''))) {
-        sendJsonResponse(false, 'Please fill in all required fields.');
+        $missing[] = $fieldLabels[$field] ?? $field;
     }
 }
 
-$email = filter_var(trim($post['competitor_email']), FILTER_VALIDATE_EMAIL);
-if (!$email) {
-    sendJsonResponse(false, 'Please enter a valid email address.');
+$email = filter_var(trim($post['competitor_email'] ?? ''), FILTER_VALIDATE_EMAIL);
+if (!empty(trim($post['competitor_email'] ?? '')) && !$email) {
+    $missing[] = 'Competitor Email (valid email)';
 }
 
-// Declaration agreement required
+// Step 2 & 3 mandatory checkboxes
+$checkboxRequired = ['uv_0', 'uv_1', 'uv_2', 'uv_3', 'uv_4', 'wt_0', 'wt_1', 'ec_0', 'ec_1', 'ec_3', 'ec_5', 'ec_6', 'ec_7', 'ec_8', 'vi_1', 'vi_2', 'vi_3', 'vi_4', 've_0', 've_1', 've_2', 've_3', 've_4', 've_5', 've_6', 've_8', 've_11', 've_13', 'ft_2', 'ft_3'];
+foreach ($checkboxRequired as $field) {
+    if (empty($post[$field]) || $post[$field] !== '1') {
+        $missing[] = $fieldLabels[$field] ?? $field;
+    }
+}
+
+// Step 4 mandatory selects
+$selectRequired = ['helmet_rating', 'suit_rating', 'head_neck_restraint'];
+foreach ($selectRequired as $field) {
+    $val = trim($post[$field] ?? '');
+    if ($val === '') {
+        $missing[] = $fieldLabels[$field] ?? $field;
+    }
+}
+
+// Signatures
+if (empty($post['sig_entrant']) || strlen($post['sig_entrant']) < 50) {
+    $missing[] = $fieldLabels['sig_entrant'];
+}
+if (empty($post['sig_driver']) || strlen($post['sig_driver']) < 50) {
+    $missing[] = $fieldLabels['sig_driver'];
+}
+
+// Step 5 logbook
+$logbook = trim($post['logbook'] ?? '');
+if ($logbook !== 'yes' && $logbook !== 'no') {
+    $missing[] = $fieldLabels['logbook'];
+}
+
+// Declaration
 if (empty($post['declaration_agree']) || $post['declaration_agree'] !== '1') {
-    sendJsonResponse(false, 'You must agree to the Participants Declaration to submit.');
+    $missing[] = $fieldLabels['declaration_agree'];
 }
 
-// Signatures required
-if (empty($post['sig_entrant']) || empty($post['sig_driver'])) {
-    sendJsonResponse(false, 'Both Entrant and Driver signatures are required.');
+if (!empty($missing)) {
+    $msg = count($missing) === 1
+        ? 'Please complete: ' . $missing[0]
+        : 'Please complete: ' . implode(', ', array_slice($missing, 0, 5)) . (count($missing) > 5 ? ' and ' . (count($missing) - 5) . ' more' : '');
+    sendJsonResponse(false, $msg);
 }
 
 // Load TCPDF
