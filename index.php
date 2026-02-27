@@ -36,7 +36,8 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             <p class="progress-text" id="progressText">Step 1 of 5</p>
         </div>
 
-        <div class="steps">
+        <div class="steps" id="stepsContainer">
+            <div class="steps-inner" id="stepsInner">
             <!-- Step 1: Vehicle Info -->
             <section class="form-section step-panel" data-step="1">
                 <h2>Vehicle Information</h2>
@@ -165,6 +166,7 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
                 </div>
                 <p id="submitError" class="error" aria-live="polite"></p>
             </section>
+            </div>
         </div>
     </form>
 

@@ -10,28 +10,31 @@
     const totalSteps = panels.length;
 
     let padEntrant, padDriver;
-    let signaturesInitialized = false;
+    const stepsInner = document.getElementById('stepsInner');
+    const stepsContainer = document.getElementById('stepsContainer');
 
     function showStep(step) {
         const n = parseInt(step, 10);
+        currentStep = n;
         panels.forEach(function (p) {
             p.classList.toggle('active', parseInt(p.dataset.step, 10) === n);
         });
+        if (stepsInner && stepsContainer) {
+            var stepWidth = stepsContainer.offsetWidth || document.documentElement.clientWidth || 300;
+            var offset = (n - 1) * stepWidth;
+            stepsInner.style.transform = 'translateX(-' + offset + 'px)';
+        }
         progressBar.style.width = (n / totalSteps * 100) + '%';
         progressBar.setAttribute('aria-valuenow', n);
         progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
-        if (n === 4 && !signaturesInitialized) {
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    initSignatures();
-                    signaturesInitialized = true;
-                });
-            });
-        }
     }
 
+    var currentStep = 1;
     function initSteps() {
         showStep(1);
+        window.addEventListener('resize', function () {
+            showStep(currentStep);
+        });
         document.querySelectorAll('.btn-next').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const panel = btn.closest('.step-panel');
@@ -91,6 +94,11 @@
         });
         padEntrant.clear();
         padDriver.clear();
+
+        window.addEventListener('resize', resizeCanvases);
+        window.addEventListener('orientationchange', function () {
+            setTimeout(resizeCanvases, 100);
+        });
 
         document.querySelectorAll('.clear-sig').forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -160,4 +168,5 @@
 
     initSteps();
     initCheckAll();
+    initSignatures();
 })();

@@ -78,15 +78,24 @@ header {
 }
 
 .steps {
+    overflow: hidden;
     position: relative;
 }
 
+.steps-inner {
+    display: flex;
+    width: 500%;
+    transition: transform 0.3s ease;
+}
+
 .step-panel {
-    display: none;
+    flex: 0 0 20%;
+    min-width: 0;
+    width: 20%;
 }
 
 .step-panel.active {
-    display: block;
+    /* Visible via translateX on parent */
 }
 
 .step-actions {
