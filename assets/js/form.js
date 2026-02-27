@@ -4,9 +4,52 @@
     const form = document.getElementById('techForm');
     const submitBtn = document.getElementById('submitBtn');
     const errorEl = document.getElementById('submitError');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const panels = document.querySelectorAll('.step-panel');
+    const totalSteps = panels.length;
 
-    // Signature pads
     let padEntrant, padDriver;
+
+    function showStep(step) {
+        const n = parseInt(step, 10);
+        panels.forEach(function (p) {
+            p.classList.toggle('active', parseInt(p.dataset.step, 10) === n);
+        });
+        progressBar.style.width = (n / totalSteps * 100) + '%';
+        progressBar.setAttribute('aria-valuenow', n);
+        progressText.textContent = 'Step ' + n + ' of ' + totalSteps;
+    }
+
+    function initSteps() {
+        showStep(1);
+        document.querySelectorAll('.btn-next').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const panel = btn.closest('.step-panel');
+                const next = parseInt(panel.dataset.step, 10) + 1;
+                if (next <= totalSteps) showStep(next);
+            });
+        });
+        document.querySelectorAll('.btn-prev').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const panel = btn.closest('.step-panel');
+                const prev = parseInt(panel.dataset.step, 10) - 1;
+                if (prev >= 1) showStep(prev);
+            });
+        });
+    }
+
+    function initCheckAll() {
+        const btn = document.getElementById('checkAllBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-verify] input[type="checkbox"]').forEach(function (cb) {
+                cb.checked = true;
+            });
+            btn.textContent = 'All Verified';
+            btn.disabled = true;
+        });
+    }
 
     function initSignatures() {
         const canvasEntrant = document.getElementById('sigEntrant');
@@ -22,9 +65,8 @@
             penColor: 'rgb(0, 0, 0)'
         });
 
-        // Scale for retina (resize clears pad, so only on init)
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        [canvasEntrant, canvasDriver].forEach(c => {
+        [canvasEntrant, canvasDriver].forEach(function (c) {
             const ctx = c.getContext('2d');
             const rect = c.getBoundingClientRect();
             c.width = rect.width * ratio;
@@ -34,7 +76,7 @@
         padEntrant.clear();
         padDriver.clear();
 
-        document.querySelectorAll('.clear-sig').forEach(btn => {
+        document.querySelectorAll('.clear-sig').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-for');
                 if (id === 'sigEntrant' && padEntrant) padEntrant.clear();
@@ -58,11 +100,13 @@
 
         if (!padEntrant || padEntrant.isEmpty()) {
             errorEl.textContent = 'Please sign as Entrant.';
+            showStep(4);
             document.getElementById('sigEntrant').scrollIntoView({ behavior: 'smooth' });
             return;
         }
         if (!padDriver || padDriver.isEmpty()) {
             errorEl.textContent = 'Please sign as Driver.';
+            showStep(4);
             document.getElementById('sigDriver').scrollIntoView({ behavior: 'smooth' });
             return;
         }
@@ -98,5 +142,7 @@
             });
     });
 
+    initSteps();
+    initCheckAll();
     initSignatures();
 })();

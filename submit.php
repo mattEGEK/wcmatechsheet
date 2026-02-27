@@ -27,7 +27,7 @@ if (!empty($post['website'])) {
 }
 
 // Required fields
-$required = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email', 'date_received'];
+$required = ['entrant', 'car_make', 'car_model', 'car_colour', 'driver_team', 'car_number', 'competitor_email'];
 foreach ($required as $field) {
     if (empty(trim($post[$field] ?? ''))) {
         sendJsonResponse(false, 'Please fill in all required fields.');
@@ -55,128 +55,169 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 use TCPDF;
 
-// Generate PDF
+$dateSubmitted = date('Y-m-d H:i');
+$logoPath = __DIR__ . '/assets/images/WCMA-Logo.png';
+
+// Generate PDF - match original layout exactly, single page
 try {
     $pdf = new TCPDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
     $pdf->SetCreator('NASCC Tech Sheet');
-    $pdf->SetMargins(12, 12, 12);
-    $pdf->SetAutoPageBreak(true, 12);
-    $pdf->SetFont('helvetica', '', 9);
+    $pdf->SetMargins(10, 8, 10);
+    $pdf->SetAutoPageBreak(false);
+    $pdf->SetFont('helvetica', '', 7);
     $pdf->AddPage();
 
-    $y = 15;
-    $lh = 5;
+    $x = 10;
+    $y = 8;
+    $lh = 3.5;
+    $colW = 95;
 
-    // Header
-    $pdf->SetFont('helvetica', 'B', 14);
-    $pdf->Cell(0, 6, 'UCTA GO RACING!', 0, 1);
+    // Header: Logo + title
+    if (file_exists($logoPath)) {
+        $pdf->Image($logoPath, $x, $y, 25, 0, 'PNG');
+    }
     $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->Cell(0, 5, 'VEHICLE INSPECTION FORM', 0, 1);
-    $pdf->SetFont('helvetica', '', 7);
-    $pdf->MultiCell(0, 4, "It is the competitor's sole responsibility to ensure compliance to the regulations initially and at all times during the event. Inspections by the organizers, if any, do not imply compliance or any guarantee of vehicle safety.", 0, 'L');
-    $y = $pdf->GetY() + 3;
-    $pdf->SetFont('helvetica', '', 9);
-
-    // Vehicle info - two columns
-    $pdf->SetXY(12, $y);
-    $pdf->Cell(40, $lh, 'ENTRANT:', 0, 0);
-    $pdf->Cell(50, $lh, $post['entrant'] ?? '', 'B', 0);
-    $pdf->Cell(15, $lh, '', 0, 0);
-    $pdf->Cell(35, $lh, 'CAR MAKE:', 0, 0);
-    $pdf->Cell(0, $lh, $post['car_make'] ?? '', 'B', 1);
-
-    $pdf->Cell(40, $lh, 'CAR MODEL:', 0, 0);
-    $pdf->Cell(50, $lh, $post['car_model'] ?? '', 'B', 0);
-    $pdf->Cell(15, $lh, '', 0, 0);
-    $pdf->Cell(35, $lh, 'CAR COLOUR:', 0, 0);
-    $pdf->Cell(0, $lh, $post['car_colour'] ?? '', 'B', 1);
-
-    $pdf->Cell(40, $lh, 'DRIVER/TEAM NAME:', 0, 0);
-    $pdf->Cell(50, $lh, $post['driver_team'] ?? '', 'B', 0);
-    $pdf->Cell(15, $lh, '', 0, 0);
-    $pdf->Cell(35, $lh, 'CAR NUMBER:', 0, 0);
-    $pdf->Cell(0, $lh, $post['car_number'] ?? '', 'B', 1);
-
-    $pdf->Cell(40, $lh, 'CLASS:', 0, 0);
-    $pdf->Cell(50, $lh, $post['class'] ?? '', 'B', 0);
-    $pdf->Cell(15, $lh, '', 0, 0);
-    $pdf->Cell(35, $lh, 'ENGINE (CC):', 0, 0);
-    $pdf->Cell(0, $lh, $post['engine_cc'] ?? '', 'B', 1);
-
-    $pdf->Cell(40, $lh, 'ENGINE (HP):', 0, 0);
-    $pdf->Cell(50, $lh, $post['engine_hp'] ?? '', 'B', 0);
-    $pdf->Cell(15, $lh, '', 0, 0);
-    $pdf->Cell(35, $lh, 'CAR WEIGHT:', 0, 0);
-    $pdf->Cell(0, $lh, $post['car_weight'] ?? '', 'B', 1);
-
+    $pdf->SetXY(38, $y);
+    $pdf->Cell(0, 5, 'WCMA Go Racing!', 0, 1);
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->SetX(38);
+    $pdf->Cell(0, 4, 'VEHICLE INSPECTION FORM', 0, 1);
+    $y = $pdf->GetY() + 1;
+    $pdf->SetFont('helvetica', '', 6);
+    $pdf->MultiCell(0, 3, "It is the competitor's sole responsibility to ensure compliance to the regulations initially and at all times during the event. Inspections by the organizers, if any, do not imply compliance or any guarantee of vehicle safety.", 0, 'L');
     $y = $pdf->GetY() + 2;
 
-    // Checkbox sections
-    $sections = [
+    // Vehicle info - two columns per original
+    // Left: ENTRANT, CAR MAKE, CAR MODEL, CAR COLOUR
+    // Right: DRIVER/TEAM NAME, CAR NUMBER, CLASS, ENGINE (CC) (HP), CAR WEIGHT
+    $pdf->SetFont('helvetica', '', 7);
+    $pdf->SetXY($x, $y);
+    $pdf->Cell(22, $lh, 'ENTRANT:', 0, 0);
+    $pdf->Cell(45, $lh, $post['entrant'] ?? '', 'B', 0);
+    $pdf->SetXY($x + $colW, $y);
+    $pdf->Cell(28, $lh, 'DRIVER/TEAM NAME:', 0, 0);
+    $pdf->Cell(0, $lh, $post['driver_team'] ?? '', 'B', 1);
+
+    $y = $pdf->GetY();
+    $pdf->SetXY($x, $y);
+    $pdf->Cell(22, $lh, 'CAR MAKE:', 0, 0);
+    $pdf->Cell(45, $lh, $post['car_make'] ?? '', 'B', 0);
+    $pdf->SetXY($x + $colW, $y);
+    $pdf->Cell(22, $lh, 'CAR NUMBER:', 0, 0);
+    $pdf->Cell(25, $lh, $post['car_number'] ?? '', 'B', 0);
+    $pdf->Cell(12, $lh, 'CLASS:', 0, 0);
+    $pdf->Cell(0, $lh, $post['class'] ?? '', 'B', 1);
+
+    $y = $pdf->GetY();
+    $pdf->SetXY($x, $y);
+    $pdf->Cell(22, $lh, 'CAR MODEL:', 0, 0);
+    $pdf->Cell(45, $lh, $post['car_model'] ?? '', 'B', 0);
+    $pdf->SetXY($x + $colW, $y);
+    $pdf->Cell(22, $lh, 'ENGINE:', 0, 0);
+    $pdf->Cell(15, $lh, $post['engine_cc'] ?? '', 'B', 0);
+    $pdf->Cell(8, $lh, '(CC)', 0, 0);
+    $pdf->Cell(15, $lh, $post['engine_hp'] ?? '', 'B', 0);
+    $pdf->Cell(8, $lh, '(HP)', 0, 1);
+
+    $y = $pdf->GetY();
+    $pdf->SetXY($x, $y);
+    $pdf->Cell(22, $lh, 'CAR COLOUR:', 0, 0);
+    $pdf->Cell(45, $lh, $post['car_colour'] ?? '', 'B', 0);
+    $pdf->SetXY($x + $colW, $y);
+    $pdf->Cell(22, $lh, 'CAR WEIGHT:', 0, 0);
+    $pdf->Cell(0, $lh, $post['car_weight'] ?? '', 'B', 1);
+
+    $y = $pdf->GetY() + 1;
+
+    // EACH ITEM MUST BE VERIFIED...
+    $pdf->SetFont('helvetica', 'B', 7);
+    $pdf->SetFillColor(240, 240, 240);
+    $pdf->Cell(0, 5, 'EACH ITEM MUST BE VERIFIED BY THE COMPETITOR PRIOR TO THE TECHNICAL INSPECTION', 1, 1, 'C', true);
+    $y = $pdf->GetY() + 1;
+
+    // Two-column checklist - Left col then Right col
+    $leftCol = [
         'UNDER VEHICLE' => ['uv_0' => 'Steering linkage', 'uv_1' => 'Suspension & shocks', 'uv_2' => 'Wheel bearing condition', 'uv_3' => 'Brakes & hoses', 'uv_4' => 'Ball joints, rod ends, bushings'],
         'WHEELS and TIRES' => ['wt_0' => 'Wheel and tire condition', 'wt_1' => 'Meets class criteria'],
         'ENGINE COMPARTMENT' => ['ec_0' => 'Fuel pump, lines & fittings zero leaks', 'ec_1' => 'Oil supply tank, oil lines security', 'ec_2' => 'Oil catch tank (min. 1L)', 'ec_3' => 'Coolant hose condition', 'ec_4' => 'Coolant catch tank (min 1L)', 'ec_5' => 'Battery terminal posts insulated', 'ec_6' => 'Battery mount', 'ec_7' => 'Wiring mounting and integrity', 'ec_8' => 'Carburetion / fuel injection security'],
-        'VEHICLE INTERIOR' => ['vi_0' => 'Roll bar padding/roll cage integrity', 'vi_1' => 'Accessories properly mounted', 'vi_2' => "Driver's seat securely mounted", 'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes', 'vi_5' => 'Window net/Arm restraints', 'vi_6' => 'Window net release mechanism'],
+        'VEHICLE INTERIOR' => ['vi_0' => 'Roll bar padding/roll cage integrity', 'vi_1' => 'Accessories properly mounted', 'vi_2' => "Driver's seat securely mounted", 'vi_3' => 'Rearview mirror', 'vi_4' => 'Firewall and floor have no holes', 'vi_5' => 'Window net/Arm restraints', 'vi_6' => 'Window net release mechanism', 'fire_ext' => 'Fire Extinguisher – Type ' . ($post['fire_ext_type'] ?? '') . ' Age ' . ($post['fire_ext_age'] ?? ''), 'seatbelt' => 'Seat belts (5 or 6 point) (Expiry date) ' . ($post['seatbelt_expiry'] ?? '')],
+    ];
+    $rightCol = [
         'VEHICLE EXTERIOR' => ['ve_0' => 'Front and Rear tow points', 've_1' => 'Appearance and Markings', 've_2' => 'Body panels secure', 've_3' => 'Windshield & windows', 've_4' => 'Headlights (Night and Ice events)', 've_5' => 'Brake & tail lights as per class rules', 've_6' => 'Exhaust system meets regulations', 've_7' => 'Window clips or Urethane', 've_8' => 'Bumper condition/attachment', 've_9' => 'Exterior mirrors (2)', 've_10' => 'Master switch - kills engine', 've_11' => 'Aero and Mud flaps secure', 've_12' => 'Rain lights/Rear facing light', 've_13' => 'Hood and Trunk fastened properly'],
         'FUEL TANK COMPARTMENT' => ['ft_0' => 'Proper ventilation and check valves', 'ft_1' => 'Surge tank safely mounted', 'ft_2' => 'Firewall/bulkhead', 'ft_3' => 'Fuel tank/fuel cell securely mounted'],
+        'DRIVER SAFETY EQUIPMENT' => ['ds_0' => 'Helmet- Rating', 'ds_1' => 'Goggles or visor', 'ds_2' => 'Suit - Rating', 'ds_3' => 'Underwear (if required)', 'ds_4' => 'Shoes', 'ds_5' => 'Socks', 'ds_6' => 'Gloves', 'ds_7' => 'Balaclava', 'ds_8' => 'Head & Neck Restraints'],
     ];
 
-    foreach ($sections as $title => $items) {
-        $pdf->SetFont('helvetica', 'B', 9);
-        $pdf->Cell(0, $lh, $title, 0, 1);
-        $pdf->SetFont('helvetica', '', 8);
-        foreach ($items as $key => $label) {
-            $checked = !empty($post[$key]) ? 'X' : '';
-            $pdf->Cell(6, $lh, '[' . $checked . ']', 0, 0);
-            $pdf->Cell(0, $lh, $label, 0, 1);
-        }
-        $pdf->Ln(1);
-    }
-
-    // Fire extinguisher, seat belts
-    $pdf->Cell(6, $lh, '[' . (!empty($post['fire_ext_type']) || !empty($post['fire_ext_age']) ? 'X' : '') . ']', 0, 0);
-    $pdf->Cell(0, $lh, 'Fire Extinguisher – Type: ' . ($post['fire_ext_type'] ?? '') . ' Age: ' . ($post['fire_ext_age'] ?? ''), 0, 1);
-    $pdf->Cell(6, $lh, '[' . (!empty($post['seatbelt_expiry']) ? 'X' : '') . ']', 0, 0);
-    $pdf->Cell(0, $lh, 'Seat belts (5 or 6 point) Expiry date: ' . ($post['seatbelt_expiry'] ?? ''), 0, 1);
-
-    // Driver safety - blank
-    $pdf->SetFont('helvetica', 'B', 9);
-    $pdf->Cell(0, $lh, 'DRIVER SAFETY EQUIPMENT (Tech fills at track)', 0, 1);
-    $pdf->SetFont('helvetica', '', 8);
-    $pdf->Ln(2);
-
-    // Signatures
-    $sigW = 55;
-    $sigH = 25;
-    $sigLabels = ['sig_entrant' => "Entrant's Signature", 'sig_driver' => "Driver's Signature"];
-    $sigX = 12;
-    foreach ($sigLabels as $key => $label) {
-        $pdf->SetFont('helvetica', '', 7);
-        $pdf->Cell(0, 4, $label, 0, 1);
-        $data = $post[$key] ?? '';
-        if ($data && preg_match('/^data:image\/png;base64,(.+)$/', $data, $m)) {
-            $img = base64_decode($m[1]);
-            if ($img !== false) {
-                $tmp = tempnam(sys_get_temp_dir(), 'sig');
-                file_put_contents($tmp, $img);
-                $pdf->Image($tmp, $sigX, $pdf->GetY(), $sigW, $sigH, 'PNG');
-                @unlink($tmp);
+    function renderCheckColumn($pdf, $sections, $post, $x, $colW, $lh) {
+        $y = $pdf->GetY();
+        foreach ($sections as $title => $items) {
+            $pdf->SetFont('helvetica', 'B', 7);
+            $pdf->SetXY($x, $y);
+            $pdf->Cell($colW - 10, $lh, $title, 0, 0);
+            $y += $lh + 0.5;
+            $pdf->SetFont('helvetica', '', 6);
+            foreach ($items as $key => $label) {
+                $checked = ' ';
+                if ($key === 'fire_ext') {
+                    $checked = (!empty($post['fire_ext_type']) || !empty($post['fire_ext_age'])) ? 'X' : ' ';
+                } elseif ($key === 'seatbelt') {
+                    $checked = !empty($post['seatbelt_expiry']) ? 'X' : ' ';
+                } elseif (isset($post[$key]) && $post[$key]) {
+                    $checked = 'X';
+                }
+                $pdf->SetXY($x, $y);
+                $pdf->Cell(5, $lh, '[' . $checked . ']', 0, 0);
+                $pdf->Cell($colW - 15, $lh, $label, 0, 0);
+                $y += $lh;
             }
+            $y += 1;
         }
-        $pdf->SetY($pdf->GetY() + $sigH + 2);
+        return $y;
     }
-    $pdf->SetFont('helvetica', '', 8);
-    $pdf->Cell(0, $lh, "Tech Rep's Signature: (Tech fills at track)", 0, 1);
 
-    // Footer
-    $pdf->Ln(2);
-    $pdf->Cell(0, $lh, 'Date Received: ' . ($post['date_received'] ?? ''), 0, 1);
-    $pdf->Cell(0, $lh, 'Vehicle Log Book Turned In: ' . (($post['logbook'] ?? '') === 'yes' ? 'Yes' : (($post['logbook'] ?? '') === 'no' ? 'No' : '')), 0, 1);
-    $pdf->Ln(2);
-    $pdf->SetFont('helvetica', '', 8);
-    $pdf->MultiCell(0, 4, "Participants Declaration: I hereby stipulate that the above vehicle meets the regulations for the event.", 0, 'L');
+    $pdf->SetY($y);
+    $yStart = $y;
+    $yLeft = renderCheckColumn($pdf, $leftCol, $post, $x, $colW, $lh);
+    $pdf->SetY($yStart);
+    $yRight = renderCheckColumn($pdf, $rightCol, $post, $x + $colW, $colW, $lh);
+    $y = max($yLeft, $yRight) + 2;
+
+    // Footer: Declaration, Signatures, Date Submitted, Log Book
     $pdf->SetFont('helvetica', '', 7);
-    $pdf->Cell(0, 5, 'Revised 2021', 0, 1);
+    $pdf->MultiCell(0, 3.5, "Participants Declaration: I hereby stipulate that the above vehicle meets the regulations for the event.", 0, 'L');
+    $y = $pdf->GetY() + 1;
+
+    $sigW = 50;
+    $sigH = 18;
+    $pdf->Cell(0, 3, "Entrant's Signature", 0, 1);
+    $data = $post['sig_entrant'] ?? '';
+    if ($data && preg_match('/^data:image\/png;base64,(.+)$/', $data, $m)) {
+        $img = base64_decode($m[1]);
+        if ($img !== false) {
+            $tmp = tempnam(sys_get_temp_dir(), 'sig');
+            file_put_contents($tmp, $img);
+            $pdf->Image($tmp, $x, $pdf->GetY(), $sigW, $sigH, 'PNG');
+            @unlink($tmp);
+        }
+    }
+    $pdf->SetY($pdf->GetY() + $sigH + 1);
+    $pdf->Cell(0, 3, "Driver's Signature", 0, 1);
+    $data = $post['sig_driver'] ?? '';
+    if ($data && preg_match('/^data:image\/png;base64,(.+)$/', $data, $m)) {
+        $img = base64_decode($m[1]);
+        if ($img !== false) {
+            $tmp = tempnam(sys_get_temp_dir(), 'sig');
+            file_put_contents($tmp, $img);
+            $pdf->Image($tmp, $x, $pdf->GetY(), $sigW, $sigH, 'PNG');
+            @unlink($tmp);
+        }
+    }
+    $pdf->SetY($pdf->GetY() + $sigH + 1);
+    $pdf->Cell(0, $lh, "Tech Representative's Signature: (Tech fills at track)", 0, 1);
+    $pdf->Cell(0, $lh, 'Date Submitted: ' . $dateSubmitted, 0, 1);
+    $pdf->Cell(0, $lh, 'Vehicle Log Book Turned In: ' . (($post['logbook'] ?? '') === 'yes' ? 'Yes' : (($post['logbook'] ?? '') === 'no' ? 'No' : '')), 0, 1);
+    $pdf->SetFont('helvetica', '', 6);
+    $pdf->Cell(0, 4, 'Revised 2021', 0, 1);
 
     $pdfContent = $pdf->Output('', 'S');
 

@@ -29,15 +29,26 @@ header {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-header h1 {
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-brand .logo {
+    height: 50px;
+    width: auto;
+}
+
+.header-brand h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--accent);
 }
 
 .subtitle {
-    margin: 0.25rem 0 0;
-    font-size: 1rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem;
     font-weight: 600;
 }
 
@@ -45,6 +56,91 @@ header h1 {
     margin: 0.75rem 0 0;
     font-size: 0.8rem;
     color: #555;
+}
+
+.progress-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+.progress-bar {
+    height: 4px;
+    background: var(--accent);
+    width: 20%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.steps {
+    position: relative;
+}
+
+.step-panel {
+    display: none;
+}
+
+.step-panel.active {
+    display: block;
+}
+
+.step-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.step-actions button {
+    flex: 1;
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.btn-prev {
+    background: #eee;
+    color: var(--text);
+}
+
+.btn-next {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-next:hover {
+    background: #a00;
+}
+
+.check-all-wrap {
+    margin: 1rem 0;
+}
+
+#checkAllBtn {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    background: #2a7;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+#checkAllBtn:hover:not(:disabled) {
+    background: #196;
+}
+
+#checkAllBtn:disabled {
+    background: #8a8;
+    cursor: default;
 }
 
 form {
