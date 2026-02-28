@@ -38,6 +38,14 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
         </div>
         <p id="formError" class="error form-error" aria-live="polite"></p>
 
+        <div id="loadPromptBanner" class="load-prompt-banner" style="display:none;" aria-live="polite">
+            <p class="load-prompt-msg">Load previous submission? <strong id="loadPromptLabel"></strong></p>
+            <div class="load-prompt-actions">
+                <button type="button" id="loadPromptLoad" class="btn-load">Load Previous</button>
+                <button type="button" id="loadPromptFresh" class="btn-fresh">Start Fresh</button>
+            </div>
+        </div>
+
         <div class="steps" id="stepsContainer">
             <div class="steps-inner" id="stepsInner">
             <!-- Step 1: Vehicle Info -->
@@ -233,17 +241,6 @@ $siteName = $config['site_name'] ?? 'NASCC Tech Sheet';
             </div>
         </div>
     </form>
-
-    <div id="loadPromptOverlay" class="load-prompt-overlay" aria-hidden="true" role="dialog" aria-labelledby="loadPromptTitle" aria-modal="true">
-        <div class="load-prompt-card">
-            <h2 id="loadPromptTitle">Load previous submission?</h2>
-            <p id="loadPromptLabel" class="load-prompt-label"></p>
-            <div class="load-prompt-actions">
-                <button type="button" id="loadPromptLoad" class="btn-load">Load Previous</button>
-                <button type="button" id="loadPromptFresh" class="btn-fresh">Start Fresh</button>
-            </div>
-        </div>
-    </div>
 
     <footer>Revised 2026</footer>
 

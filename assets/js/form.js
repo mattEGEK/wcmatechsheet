@@ -308,11 +308,11 @@
     });
 
     function initLoadPrompt() {
-        var overlay = document.getElementById('loadPromptOverlay');
+        var banner = document.getElementById('loadPromptBanner');
         var labelEl = document.getElementById('loadPromptLabel');
         var loadBtn = document.getElementById('loadPromptLoad');
         var freshBtn = document.getElementById('loadPromptFresh');
-        if (!overlay || !labelEl || !loadBtn || !freshBtn) return;
+        if (!banner || !labelEl || !loadBtn || !freshBtn) return;
 
         var stored = null;
         try {
@@ -320,15 +320,21 @@
             if (raw) stored = JSON.parse(raw);
         } catch (err) { /* ignore */ }
 
-        if (!stored || !stored.formData || Object.keys(stored.formData).length === 0) return;
+        var forceTest = /[?&]loadtest=1/.test(window.location.search || '');
+        if (forceTest && !stored) {
+            stored = { formData: { season: 'Summer', car_number: '42', car_make: 'Honda', class: 'Street Modified' }, label: '42 - Honda - Street Modified' };
+        }
+
+        if (!stored || !stored.formData) return;
+
+        var hasData = Object.keys(stored.formData).length > 0 || forceTest;
+        if (!hasData) return;
 
         labelEl.textContent = stored.label || 'Previous submission';
-        overlay.classList.add('visible');
-        overlay.setAttribute('aria-hidden', 'false');
+        banner.style.display = 'block';
 
         function hidePrompt() {
-            overlay.classList.remove('visible');
-            overlay.setAttribute('aria-hidden', 'true');
+            banner.style.display = 'none';
         }
 
         loadBtn.addEventListener('click', function () {
@@ -342,7 +348,7 @@
         });
     }
 
+    initLoadPrompt();
     initSteps();
     initSignatures();
-    initLoadPrompt();
 })();
