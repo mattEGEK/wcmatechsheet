@@ -411,7 +411,7 @@ footer {
 .load-prompt-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -419,12 +419,14 @@ footer {
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .load-prompt-overlay.visible {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .load-prompt-card {
